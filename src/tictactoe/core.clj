@@ -49,8 +49,8 @@
   "Finds the tokens at matchPositions on the board. If all three are the
    same, returns true, else false."
   [playerToken matchPositions gameBoard]
-  (let [pieces (map #(nth % gameBoard) matchPositions)
-        truthy (map #(= % playerToken) pieces)]
+  (let [pieces (map #(nth gameBoard %) matchPositions)
+        truthy (map #(= 0 (compare % playerToken)) pieces)]
         (every? identity truthy)))
 
 (defn hasWon?
@@ -58,15 +58,17 @@
   [playerToken gameBoard]
   (let [truthy (map #(tokensMatch? playerToken % gameBoard) threeInARow)]
   (println truthy)
-  (any? truthy)))
+  (.contains truthy true)))
 
 (def gameBoard ["-" "-" "-" "-" "-" "-" "-" "-" "-"])
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  ;;(println (hasWon? "X" gameBoard))
   (def firstMove (updateBoard (validateMove (getUserMove) gameBoard) gameBoard "X"))
-  (println firstMove)
-  (println (updateBoard (validateMove (getUserMove) firstMove) firstMove "O"))
+  (def second (updateBoard (validateMove (getUserMove) firstMove) firstMove "X"))
+  (def third (updateBoard (validateMove (getUserMove) second) second "X"))
+
+
+  (println (hasWon? "X" third))
 )
