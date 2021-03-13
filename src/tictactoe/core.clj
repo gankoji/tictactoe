@@ -59,6 +59,10 @@
   (let [truthy (map #(tokensMatch? playerToken % board) threeInARow)]
   (.contains truthy true)))
 
+(defn spacesLeft?
+  [board]
+  (.contains board "-"))
+
 (defn printRow
   [board pair]
   (let [[start end] pair
@@ -71,24 +75,32 @@
     (printRow board (nth printerRows 0))
     (printRow board (nth printerRows 1))
     (printRow board (nth printerRows 2))
-    ;;(map #(printRow board %) printerRows)
     )
 
 (def gameBoard ["-" "-" "-" "-" "-" "-" "-" "-" "-"])
 
+(defn otherPlayer
+  [player]
+  (if (= player "X")
+  "O"
+  "X"))
+
 (defn gameLoop
-  [board]
-  (let [done (hasWon? "X" board)]
+  [board player]
+  (let [done (hasWon? player board)
+        lost (hasWon? (otherPlayer player) board)
+        stuck (not (spacesLeft? board))]
     (printBoard board)
-    (if done
+    (if (or done lost)
       (do
         (println "Congratulations, you won!")
         board)
-      (gameLoop (updateBoard (validateMove (getUserMove) board) board "X")))))
+      (if stuck
+        (println "Game over, no moves left.")
+        (gameLoop (updateBoard (validateMove (getUserMove) board) board player) (otherPlayer player))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  ;;(printBoard gameBoard) 
-  (gameLoop gameBoard)
+  (gameLoop gameBoard "X")
 )
