@@ -87,17 +87,12 @@
 
 (defn gameLoop
   [board player]
-  (let [done (hasWon? player board)
-        lost (hasWon? (otherPlayer player) board)
-        stuck (not (spacesLeft? board))]
-    (printBoard board)
-    (if (or done lost)
-      (do
-        (println "Congratulations, you won!")
-        board)
-      (if stuck
-        (println "Game over, no moves left.")
-        (gameLoop (updateBoard (validateMove (getUserMove) board) board player) (otherPlayer player))))))
+  (printBoard board)
+  (cond
+    (hasWon? player board) (println "Congrats!" player " won!")
+    (hasWon? (otherPlayer player) board) (println "Congrats!" (otherPlayer player) " won!")
+    (not (spacesLeft? board)) (println "Game over, no moves left.")
+    :else (gameLoop (updateBoard (validateMove (getUserMove) board) board player) (otherPlayer player))))
 
 (defn -main
   "I don't do a whole lot ... yet."
