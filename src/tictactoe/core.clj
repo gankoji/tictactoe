@@ -34,41 +34,61 @@
 (defn validateMove 
   "This function takes a move input and the current gameboard, and returns a
   validated move. It will recurse on itself until a valid move is found. "
-  [move gameBoard]
+  [move board]
   (let [[row col] move
-        curr (nth gameBoard (+ (* 3 row) col))]
+        curr (nth board (+ (* 3 row) col))]
     (if (= 0 (compare curr "-"))
      move
      (do
       (println "That spot is taken. Try again!")
-      (validateMove (getUserMove) gameBoard)))))
+      (validateMove (getUserMove) board)))))
 
 (def threeInARow  [[0 1 2] [3 4 5] [6 7 8] [0 3 6] [1 4 7] [2 5 8] [0 4 8] [2 4 6]])
 
 (defn tokensMatch?
   "Finds the tokens at matchPositions on the board. If all three are the
    same, returns true, else false."
-  [playerToken matchPositions gameBoard]
-  (let [pieces (map #(nth gameBoard %) matchPositions)
+  [playerToken matchPositions board]
+  (let [pieces (map #(nth board %) matchPositions)
         truthy (map #(= 0 (compare % playerToken)) pieces)]
         (every? identity truthy)))
 
 (defn hasWon?
   "Checks for the win condition"
-  [playerToken gameBoard]
-  (let [truthy (map #(tokensMatch? playerToken % gameBoard) threeInARow)]
-  (println truthy)
+  [playerToken board]
+  (let [truthy (map #(tokensMatch? playerToken % board) threeInARow)]
   (.contains truthy true)))
 
+(defn printRow
+  [board pair]
+  (let [[start end] pair
+    row (subvec board start end)]
+    (println row)))
+
+(def printerRows [[0 3] [3 6] [6 9]])
+(defn printBoard
+  [board]
+    (printRow board (nth printerRows 0))
+    (printRow board (nth printerRows 1))
+    (printRow board (nth printerRows 2))
+    ;;(map #(printRow board %) printerRows)
+    )
+
 (def gameBoard ["-" "-" "-" "-" "-" "-" "-" "-" "-"])
+
+(defn gameLoop
+  [board]
+  (let [done (hasWon? "X" board)]
+    (printBoard board)
+    (if done
+      (do
+        (println "Congratulations, you won!")
+        board)
+      (gameLoop (updateBoard (validateMove (getUserMove) board) board "X")))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (def firstMove (updateBoard (validateMove (getUserMove) gameBoard) gameBoard "X"))
-  (def second (updateBoard (validateMove (getUserMove) firstMove) firstMove "X"))
-  (def third (updateBoard (validateMove (getUserMove) second) second "X"))
-
-
-  (println (hasWon? "X" third))
+  ;;(printBoard gameBoard) 
+  (gameLoop gameBoard)
 )
